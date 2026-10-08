@@ -1,0 +1,47 @@
+name: resume-matcher
+
+services:
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-resume}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-resume}
+      POSTGRES_DB: ${POSTGRES_DB:-resume_matcher}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-resume} -d ${POSTGRES_DB:-resume_matcher}"]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+    restart: unless-stopped
+
+  backend:
+    build:
+      context: ./backend
+    environment:
+      DATABASE_URL: "postgresql+psycopg://${POSTGRES_USER:-resume}:${POSTGRES_PASSWORD:-resume}@db:5432/${POSTGRES_DB:-resume_matcher}"
+      JWT_SECRET: "${JWT_SECRET:-dev-secret-change-me}"
+      ACCESS_TOKEN_EXPIRE_MINUTES: "${ACCESS_TOKEN_EXPIRE_MINUTES:-1440}"
+      LLM_BASE_URL: "${LLM_BASE_URL:-https://api.deepseek.com}"
+      LLM_MODEL: "${LLM_MODEL:-deepseek-chat}"
+      LLM_API_KEY: "${LLM_API_KEY:-}"
+      LLM_TIMEOUT_SECONDS: "${LLM_TIMEOUT_SECONDS:-90}"
+      LLM_MAX_RETRIES: "${LLM_MAX_RETRIES:-2}"
+      SEED_DEMO_DATA: "${SEED_DEMO_DATA:-true}"
+    depends_on:
+      db:
+        condition: service_healthy
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./frontend
+    ports:
+      - "${APP_PORT:-8080}:80"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+volumes:
+  pgdata:

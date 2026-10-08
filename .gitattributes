@@ -1,0 +1,22 @@
+# 统一行尾为 LF：backend/entrypoint.sh 是容器入口，
+# 若在 Windows 上 checkout 成 CRLF，shebang 会变成 "#!/usr/bin/env bash\r"，容器直接起不来。
+* text=auto eol=lf
+
+# 以下文件必须保持原字节（含 CRLF），不能做行尾转换，否则：
+#   - docs/题目附件/SHA256SUMS 的 sha256 校验会失败；
+#   - docs/evidence-comparison.csv「与出题方附件表头逐字节一致」这条说明会失效。
+resume-matcher/docs/题目附件/** -text
+resume-matcher/docs/evidence-comparison.csv -text
+
+# 仓库自带的 MIT 许可证同样保持原字节，避免出现纯粹的行尾改动
+LICENSE -text
+
+# 二进制文件不做行尾转换
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.zip binary
+*.woff binary
+*.woff2 binary

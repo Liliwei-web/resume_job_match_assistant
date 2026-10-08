@@ -218,3 +218,14 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# --------------------------------- 本项目追加 ---------------------------------
+# 出题方附件原件（内容已解压在 resume-matcher/docs/题目附件/，无需重复入库）
+# 想让这个 zip 也进仓库的话，删掉下面这一行即可
+题目5-简历证据与改稿核对.zip
+
+# 编辑器与操作系统
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
